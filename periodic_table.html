@@ -293,7 +293,15 @@ th {
 }
 
 
+function adjustZoom() {
+    const scale = Math.min(window.innerWidth / 1920, 1); // Adjust 1920 to your desired width
+    document.body.style.transform = `scale(${scale})`;
+    document.body.style.transformOrigin = "top left";
+}
 
+// Run on page load and when the window is resized
+window.onload = adjustZoom;
+window.onresize = adjustZoom;
 
     </style>
 </head>
