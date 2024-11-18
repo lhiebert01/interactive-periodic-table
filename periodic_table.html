@@ -13,7 +13,12 @@
             align-items: center;
             margin: 0;
             padding: 20px;
+            height: 100%;
+            overflow: auto;
         }
+
+      
+        
 
         .container {
             display: flex;
@@ -293,11 +298,16 @@ th {
 }
 
 
+
+
 function adjustZoom() {
-    const scale = Math.min(window.innerWidth / 1920, 1); // Adjust 1920 to your desired width
+    const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080); // Scale based on both width and height
     document.body.style.transform = `scale(${scale})`;
     document.body.style.transformOrigin = "top left";
+    document.body.style.height = `${window.innerHeight / scale}px`; // Ensure full height
+    document.body.style.overflow = "auto"; // Enable scrolling if needed
 }
+
 
 // Run on page load and when the window is resized
 window.onload = adjustZoom;
