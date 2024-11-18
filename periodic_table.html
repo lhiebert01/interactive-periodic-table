@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Periodic Table with ChatGPT</title>
+    <title>Interactive Periodic Table App with OpenAI ChatGPT</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -576,14 +576,14 @@ const groupDescriptions = {
         addMessage(userMessage, true);
         input.value = '';
 
-        addMessage("Bot: Thinking...", false);
+        addMessage("OpenAI ChatGPT Bot: Thinking...", false);
         try {
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
                 body: JSON.stringify({
                     model: "gpt-4",
-                    messages: [{ role: "system", content: "You are a helpful chemistry assistant." }, { role: "user", content: userMessage }]
+                    messages: [{ role: "system", content: "You are a friendly, helpful assistant for the periodic table and all topics involving chemistry assistant." }, { role: "user", content: userMessage }]
                 })
             });
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
