@@ -105,15 +105,22 @@ Developers can extend or customize the application by:
 ## Sample OpenAI ChatGPT Interactive Periodic Table App Screenshots:
 
 ![Interactive Periodic Table](appimage0.png)
+*A dynamic, user-friendly, and educational tool for exploring chemistry and AI capabilities.*
 ![Interactive Periodic Table](appimage1.png)
+*An interactive chemistry assistant for exploring chemistry and AI capabilities.*
 ![Interactive Periodic Table](appimage2.png)
+*A sample question and response from OpenAI ChatGPT4 interactive chemistry assistant for exploring chemistry and AI capabilities.*
 ![Interactive Periodic Table](appimage3.png)
+*A sample question and response from OpenAI ChatGPT4 interactive chemistry assistant for exploring chemistry and AI capabilities.*
 ![Interactive Periodic Table](appimage4.png)
+*A sample question and response from OpenAI ChatGPT4 interactive chemistry assistant for exploring chemistry and AI capabilities.*
 ![Interactive Periodic Table](appimage5.png)
+*A sample question and response from OpenAI ChatGPT4 interactive chemistry assistant for exploring chemistry and AI capabilities.*
+
 
 ## Please see chat-history.txt in this repository for a sample of the OpenAI ChatBot using ChatGPT4 dialog and conversation
 
-![Interactive Periodic Table](chat-history.txt)
+!(chat-history.txt)
 
 
 ## **Contributing**
