@@ -120,7 +120,7 @@ Developers can extend or customize the application by:
 
 ## Please see chat-history.txt in this repository for a sample of the OpenAI ChatBot using ChatGPT4 dialog and conversation
 
-!(chat-history.txt)
+[!(chat-history.txt)](https://github.com/lhiebert01/interactive-periodic-table/blob/main/chat-history.txt)
 
 
 ## **Contributing**
