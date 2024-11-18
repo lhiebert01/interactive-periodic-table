@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Periodic Table with ChatGPT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            width: 100%;
+            gap: 20px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        /* Legend Side Panel */
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 180px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+        }
+
+        .legend h3 {
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .legend-button {
+            padding: 10px;
+            font-size: 14px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+        }
+
+        /* Colors for legend buttons */
+        .nonmetal { background-color: #FFEB3B; }
+        .noble-gas { background-color: #81D4FA; }
+        .alkali-metal { background-color: #FF9800; }
+        .alkaline-earth { background-color: #FFA726; }
+        .metalloid { background-color: #26A69A; }
+        .halogen { background-color: #80CBC4; }
+        .metal { background-color: #90A4AE; }
+        .transition-metal { background-color: #9CCC65; }
+        .lanthanide { background-color: #b3a4ff; }
+        .actinide { background-color: #a1a1a1; }
+
+        /* Container for periodic table and legend */
+        .periodic-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            gap: 20px;
+        }
+
+.periodic-table {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    width: 100%; /* Change this to fit your desired width */
+    max-width: 1100px; /* Increase max-width to make the table wider */
+    height: 700px; /* Adjust height if you need more space */
+}
+
+        .table-header {
+            display: grid;
+            grid-template-columns: repeat(18, 60px);
+            text-align: center;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .periodic-table-grid {
+            display: grid;
+            grid-template-columns: repeat(18, 60px);
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .element {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: transform 0.2s;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .element:hover {
+            transform: scale(1.1);
+            z-index: 1;
+        }
+
+        /* Group Info Box Styling */
+.group-info, .element-info {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px; /* Increase padding for better spacing */
+    width: 60%; /* Wider box */
+    max-width: 600px; /* Limit the maximum width */
+    text-align: left; /* Align text to the left */
+    font-size: 16px; /* Adjust font size */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+
+        .close-btn {
+            display: block;
+            text-align: right;
+            font-weight: bold;
+            cursor: pointer;
+            color: #555;
+        }
+
+        /* Chat Section below the periodic table */
+        .chat-section {
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-messages {
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-height: 200px;
+            max-height: 300px;
+            background-color: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .user-message {
+            background-color: #E3F2FD;
+            margin-left: auto;
+            max-width: 90%;
+        }
+
+        .bot-message {
+            background-color: #F5F5F5;
+            margin-right: auto;
+            max-width: 90%;
+        }
+
+        .chat-input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-input textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+            height: 80px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .api-key-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .api-key-section input {
+            padding: 8px;
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1976D2;
+        }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+    text-align: left;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+
+th {
+    background-color: #f4f4f9;
+    font-weight: bold;
+}
+
+pre {
+    background-color: #f4f4f9;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+code {
+    font-family: monospace;
+    color: #333;
+}
+
+
+p {
+    margin: 5px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f9;
+    font-weight: bold;
+}
+
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Container for the Periodic Table and Legend -->
+    <div class="periodic-container">
+        <!-- Legend Side Panel -->
+        <div class="legend">
+            <h3>Groups</h3>
+            <button class="legend-button nonmetal" onclick="showGroupInfo('nonmetal')">Nonmetals</button>
+            <button class="legend-button noble-gas" onclick="showGroupInfo('noble-gas')">Noble Gases</button>
+            <button class="legend-button alkali-metal" onclick="showGroupInfo('alkali-metal')">Alkali Metals</button>
+            <button class="legend-button alkaline-earth" onclick="showGroupInfo('alkaline-earth')">Alkaline Earth Metals</button>
+            <button class="legend-button metalloid" onclick="showGroupInfo('metalloid')">Metalloids</button>
+            <button class="legend-button halogen" onclick="showGroupInfo('halogen')">Halogens</button>
+            <button class="legend-button metal" onclick="showGroupInfo('metal')">Metals</button>
+            <button class="legend-button transition-metal" onclick="showGroupInfo('transition-metal')">Transition Metals</button>
+        </div>
+
+        <!-- Periodic Table -->
+        <div class="periodic-table">
+            <h2>Interactive Periodic Table</h2>
+            <div class="table-header">
+                <div>Group 1</div><div>Group 2</div><div></div><div></div><div></div><div></div><div></div><div></div>
+                <div></div><div></div><div>Group 13</div><div>Group 14</div><div>Group 15</div><div>Group 16</div>
+                <div>Group 17</div><div>Group 18</div>
+            </div>
+            <div class="periodic-table-grid" id="periodic-table-grid"></div>
+
+            <!-- Single Group Info Box (Shows only one at a time) -->
+            <div id="group-info" class="group-info">
+                <span class="close-btn" onclick="closeGroupInfo()">✕</span>
+                <div id="group-info-content"></div>
+            </div>
+
+            <!-- Element Info Box -->
+            <div id="element-info" class="element-info">
+                <span class="close-btn" onclick="closeElementInfo()">✕</span>
+                <div id="element-info-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Section below the periodic table -->
+    <div class="chat-section">
+        <div class="api-key-section">
+            <input type="password" id="api-key-input" placeholder="Enter OpenAI API Key">
+            <button onclick="saveApiKey()">Save API Key</button>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-section">
+            <textarea id="user-input" placeholder="Ask a question about the periodic table..."></textarea>
+            <div class="controls">
+                <button onclick="sendMessage()">Send</button>
+                <button onclick="downloadChat()">Save Conversation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let apiKey = '';
+
+    function saveApiKey() {
+        apiKey = document.getElementById('api-key-input').value.trim();
+        alert(apiKey ? "API key saved!" : "Please enter a valid API key.");
+    }
+
+    const elements = [
+   {symbol: 'H', name: 'Hydrogen', number: 1, category: 'nonmetal', x: 1, y: 1},
+            {symbol: 'He', name: 'Helium', number: 2, category: 'noble-gas', x: 18, y: 1},
+            {symbol: 'Li', name: 'Lithium', number: 3, category: 'alkali-metal', x: 1, y: 2},
+            {symbol: 'Be', name: 'Beryllium', number: 4, category: 'alkaline-earth', x: 2, y: 2},
+            {symbol: 'B', name: 'Boron', number: 5, category: 'metalloid', x: 13, y: 2},
+            {symbol: 'C', name: 'Carbon', number: 6, category: 'nonmetal', x: 14, y: 2},
+            {symbol: 'N', name: 'Nitrogen', number: 7, category: 'nonmetal', x: 15, y: 2},
+            {symbol: 'O', name: 'Oxygen', number: 8, category: 'nonmetal', x: 16, y: 2},
+            {symbol: 'F', name: 'Fluorine', number: 9, category: 'halogen', x: 17, y: 2},
+            {symbol: 'Ne', name: 'Neon', number: 10, category: 'noble-gas', x: 18, y: 2},
+            {symbol: 'Na', name: 'Sodium', number: 11, category: 'alkali-metal', x: 1, y: 3},
+            {symbol: 'Mg', name: 'Magnesium', number: 12, category: 'alkaline-earth', x: 2, y: 3},
+            {symbol: 'Al', name: 'Aluminum', number: 13, category: 'metal', x: 13, y: 3},
+            {symbol: 'Si', name: 'Silicon', number: 14, category: 'metalloid', x: 14, y: 3},
+            {symbol: 'P', name: 'Phosphorus', number: 15, category: 'nonmetal', x: 15, y: 3},
+            {symbol: 'S', name: 'Sulfur', number: 16, category: 'nonmetal', x: 16, y: 3},
+            {symbol: 'Cl', name: 'Chlorine', number: 17, category: 'halogen', x: 17, y: 3},
+            {symbol: 'Ar', name: 'Argon', number: 18, category: 'noble-gas', x: 18, y: 3},
+            {symbol: 'K', name: 'Potassium', number: 19, category: 'alkali-metal', x: 1, y: 4},
+            {symbol: 'Ca', name: 'Calcium', number: 20, category: 'alkaline-earth', x: 2, y: 4},,
+            {symbol: 'Sc', name: 'Scandium', number: 21, category: 'transition-metal', x: 3, y: 4},
+            {symbol: 'Ti', name: 'Titanium', number: 22, category: 'transition-metal', x: 4, y: 4},
+            {symbol: 'V', name: 'Vanadium', number: 23, category: 'transition-metal', x: 5, y: 4},
+            {symbol: 'Cr', name: 'Chromium', number: 24, category: 'transition-metal', x: 6, y: 4},
+            {symbol: 'Mn', name: 'Manganese', number: 25, category: 'transition-metal', x: 7, y: 4},
+            {symbol: 'Fe', name: 'Iron', number: 26, category: 'transition-metal', x: 8, y: 4},
+            {symbol: 'Co', name: 'Cobalt', number: 27, category: 'transition-metal', x: 9, y: 4},
+            {symbol: 'Ni', name: 'Nickel', number: 28, category: 'transition-metal', x: 10, y: 4},
+            {symbol: 'Cu', name: 'Copper', number: 29, category: 'transition-metal', x: 11, y: 4},
+            {symbol: 'Zn', name: 'Zinc', number: 30, category: 'metal', x: 12, y: 4},
+            {symbol: 'Ga', name: 'Gallium', number: 31, category: 'metal', x: 13, y: 4},
+            {symbol: 'Ge', name: 'Germanium', number: 32, category: 'metalloid', x: 14, y: 4},
+            {symbol: 'As', name: 'Arsenic', number: 33, category: 'metalloid', x: 15, y: 4},
+            {symbol: 'Se', name: 'Selenium', number: 34, category: 'nonmetal', x: 16, y: 4},
+            {symbol: 'Br', name: 'Bromine', number: 35, category: 'halogen', x: 17, y: 4},
+            {symbol: 'Kr', name: 'Krypton', number: 36, category: 'noble-gas', x: 18, y: 4},
+{symbol: 'Rb', name: 'Rubidium', number: 37, category: 'alkali-metal', x: 1, y: 5},
+{symbol: 'Sr', name: 'Strontium', number: 38, category: 'alkaline-earth', x: 2, y: 5},
+{symbol: 'Y', name: 'Yttrium', number: 39, category: 'transition-metal', x: 3, y: 5},
+{symbol: 'Zr', name: 'Zirconium', number: 40, category: 'transition-metal', x: 4, y: 5},
+{symbol: 'Nb', name: 'Niobium', number: 41, category: 'transition-metal', x: 5, y: 5},
+{symbol: 'Mo', name: 'Molybdenum', number: 42, category: 'transition-metal', x: 6, y: 5},
+{symbol: 'Tc', name: 'Technetium', number: 43, category: 'transition-metal', x: 7, y: 5},
+{symbol: 'Ru', name: 'Ruthenium', number: 44, category: 'transition-metal', x: 8, y: 5},
+{symbol: 'Rh', name: 'Rhodium', number: 45, category: 'transition-metal', x: 9, y: 5},
+{symbol: 'Pd', name: 'Palladium', number: 46, category: 'transition-metal', x: 10, y: 5},
+{symbol: 'Ag', name: 'Silver', number: 47, category: 'metal', x: 11, y: 5},
+{symbol: 'Cd', name: 'Cadmium', number: 48, category: 'metal', x: 12, y: 5},
+{symbol: 'In', name: 'Indium', number: 49, category: 'metal', x: 13, y: 5},
+{symbol: 'Sn', name: 'Tin', number: 50, category: 'metal', x: 14, y: 5},
+{symbol: 'Sb', name: 'Antimony', number: 51, category: 'metalloid', x: 15, y: 5},
+{symbol: 'Te', name: 'Tellurium', number: 52, category: 'metalloid', x: 16, y: 5},
+{symbol: 'I', name: 'Iodine', number: 53, category: 'halogen', x: 17, y: 5},
+{symbol: 'Xe', name: 'Xenon', number: 54, category: 'noble-gas', x: 18, y: 5},
+{symbol: 'Cs', name: 'Cesium', number: 55, category: 'alkali-metal', x: 1, y: 6},
+{symbol: 'Ba', name: 'Barium', number: 56, category: 'alkaline-earth', x: 2, y: 6},
+{symbol: 'La', name: 'Lanthanum', number: 57, category: 'lanthanide', x: 3, y: 9},
+{symbol: 'Ce', name: 'Cerium', number: 58, category: 'lanthanide', x: 4, y: 9},
+{symbol: 'Pr', name: 'Praseodymium', number: 59, category: 'lanthanide', x: 5, y: 9},
+{symbol: 'Nd', name: 'Neodymium', number: 60, category: 'lanthanide', x: 6, y: 9},
+{symbol: 'Pm', name: 'Promethium', number: 61, category: 'lanthanide', x: 7, y: 9},
+{symbol: 'Sm', name: 'Samarium', number: 62, category: 'lanthanide', x: 8, y: 9},
+{symbol: 'Eu', name: 'Europium', number: 63, category: 'lanthanide', x: 9, y: 9},
+{symbol: 'Gd', name: 'Gadolinium', number: 64, category: 'lanthanide', x: 10, y: 9},
+{symbol: 'Tb', name: 'Terbium', number: 65, category: 'lanthanide', x: 11, y: 9},
+{symbol: 'Dy', name: 'Dysprosium', number: 66, category: 'lanthanide', x: 12, y: 9},
+{symbol: 'Ho', name: 'Holmium', number: 67, category: 'lanthanide', x: 13, y: 9},
+{symbol: 'Er', name: 'Erbium', number: 68, category: 'lanthanide', x: 14, y: 9},
+{symbol: 'Tm', name: 'Thulium', number: 69, category: 'lanthanide', x: 15, y: 9},
+{symbol: 'Yb', name: 'Ytterbium', number: 70, category: 'lanthanide', x: 16, y: 9},
+{symbol: 'Lu', name: 'Lutetium', number: 71, category: 'lanthanide', x: 17, y: 9},
+{symbol: 'Hf', name: 'Hafnium', number: 72, category: 'transition-metal', x: 4, y: 6},
+{symbol: 'Ta', name: 'Tantalum', number: 73, category: 'transition-metal', x: 5, y: 6},
+{symbol: 'W', name: 'Tungsten', number: 74, category: 'transition-metal', x: 6, y: 6},
+{symbol: 'Re', name: 'Rhenium', number: 75, category: 'transition-metal', x: 7, y: 6},
+{symbol: 'Os', name: 'Osmium', number: 76, category: 'transition-metal', x: 8, y: 6},
+{symbol: 'Ir', name: 'Iridium', number: 77, category: 'transition-metal', x: 9, y: 6},
+{symbol: 'Pt', name: 'Platinum', number: 78, category: 'transition-metal', x: 10, y: 6},
+{symbol: 'Au', name: 'Gold', number: 79, category: 'metal', x: 11, y: 6},
+{symbol: 'Hg', name: 'Mercury', number: 80, category: 'metal', x: 12, y: 6},
+{symbol: 'Tl', name: 'Thallium', number: 81, category: 'metal', x: 13, y: 6},
+{symbol: 'Pb', name: 'Lead', number: 82, category: 'metal', x: 14, y: 6},
+{symbol: 'Bi', name: 'Bismuth', number: 83, category: 'metal', x: 15, y: 6},
+{symbol: 'Po', name: 'Polonium', number: 84, category: 'metalloid', x: 16, y: 6},
+{symbol: 'At', name: 'Astatine', number: 85, category: 'halogen', x: 17, y: 6},
+{symbol: 'Rn', name: 'Radon', number: 86, category: 'noble-gas', x: 18, y: 6},
+{symbol: 'Fr', name: 'Francium', number: 87, category: 'alkali-metal', x: 1, y: 7},
+{symbol: 'Ra', name: 'Radium', number: 88, category: 'alkaline-earth', x: 2, y: 7},
+{symbol: 'Ac', name: 'Actinium', number: 89, category: 'actinide', x: 3, y: 10},
+{symbol: 'Th', name: 'Thorium', number: 90, category: 'actinide', x: 4, y: 10},
+{symbol: 'Pa', name: 'Protactinium', number: 91, category: 'actinide', x: 5, y: 10},
+{symbol: 'U', name: 'Uranium', number: 92, category: 'actinide', x: 6, y: 10},
+{symbol: 'Np', name: 'Neptunium', number: 93, category: 'actinide', x: 7, y: 10},
+{symbol: 'Pu', name: 'Plutonium', number: 94, category: 'actinide', x: 8, y: 10},
+{symbol: 'Am', name: 'Americium', number: 95, category: 'actinide', x: 9, y: 10},
+{symbol: 'Cm', name: 'Curium', number: 96, category: 'actinide', x: 10, y: 10},
+{symbol: 'Bk', name: 'Berkelium', number: 97, category: 'actinide', x: 11, y: 10},
+{symbol: 'Cf', name: 'Californium', number: 98, category: 'actinide', x: 12, y: 10},
+{symbol: 'Es', name: 'Einsteinium', number: 99, category: 'actinide', x: 13, y: 10},
+{symbol: 'Fm', name: 'Fermium', number: 100, category: 'actinide', x: 14, y: 10},
+{symbol: 'Md', name: 'Mendelevium', number: 101, category: 'actinide', x: 15, y: 10},
+{symbol: 'No', name: 'Nobelium', number: 102, category: 'actinide', x: 16, y: 10},
+{symbol: 'Lr', name: 'Lawrencium', number: 103, category: 'actinide', x: 17, y: 10},
+{symbol: 'Rf', name: 'Rutherfordium', number: 104, category: 'transition-metal', x: 4, y: 7},
+{symbol: 'Db', name: 'Dubnium', number: 105, category: 'transition-metal', x: 5, y: 7},
+{symbol: 'Sg', name: 'Seaborgium', number: 106, category: 'transition-metal', x: 6, y: 7},
+{symbol: 'Bh', name: 'Bohrium', number: 107, category: 'transition-metal', x: 7, y: 7},
+{symbol: 'Hs', name: 'Hassium', number: 108, category: 'transition-metal', x: 8, y: 7},
+{symbol: 'Mt', name: 'Meitnerium', number: 109, category: 'transition-metal', x: 9, y: 7},
+{symbol: 'Ds', name: 'Darmstadtium', number: 110, category: 'transition-metal', x: 10, y: 7},
+{symbol: 'Rg', name: 'Roentgenium', number: 111, category: 'transition-metal', x: 11, y: 7},
+{symbol: 'Cn', name: 'Copernicium', number: 112, category: 'metal', x: 12, y: 7},
+{symbol: 'Nh', name: 'Nihonium', number: 113, category: 'metal', x: 13, y: 7},
+{symbol: 'Fl', name: 'Flerovium', number: 114, category: 'metal', x: 14, y: 7},
+{symbol: 'Mc', name: 'Moscovium', number: 115, category: 'metal', x: 15, y: 7},
+{symbol: 'Lv', name: 'Livermorium', number: 116, category: 'metal', x: 16, y: 7},
+{symbol: 'Ts', name: 'Tennessine', number: 117, category: 'halogen', x: 17, y: 7},
+{symbol: 'Og', name: 'Oganesson', number: 118, category: 'noble-gas', x: 18, y: 7}
+
+        // Add additional elements as needed
+    ];
+
+    function createPeriodicTable() {
+        const grid = document.getElementById('periodic-table-grid');
+        elements.forEach(element => {
+            const elementDiv = document.createElement('div');
+            elementDiv.className = `element ${element.category}`;
+            elementDiv.style.gridColumn = element.x;
+            elementDiv.style.gridRow = element.y;
+            elementDiv.innerHTML = `
+                <span class="atomic-number">${element.number}</span>
+                <span class="symbol">${element.symbol}</span>
+            `;
+            elementDiv.onclick = () => showElementInfo(element);
+            grid.appendChild(elementDiv);
+        });
+    }
+
+    function showElementInfo(element) {
+        const infoContent = document.getElementById('element-info-content');
+        infoContent.innerHTML = `
+            <h2>${element.name} (${element.symbol})</h2>
+            <p><strong>Atomic Number:</strong> ${element.number}</p>
+            <button onclick="window.open('https://en.wikipedia.org/wiki/${element.name}', '_blank')">Learn More on Wikipedia</button>
+        `;
+        document.getElementById('element-info').style.display = 'block';
+    }
+
+    function closeElementInfo() {
+        document.getElementById('element-info').style.display = 'none';
+    }
+
+const groupDescriptions = {
+    "nonmetal": "Nonmetals are elements typically found in Groups 14-16. They have high electronegativity and ionization energy, making them poor conductors of heat and electricity. Essential for life, nonmetals like oxygen (O) and nitrogen (N) play crucial roles in biological and environmental processes.",
+
+    "noble-gas": "Noble gases make up Group 18, known for being inert and highly stable due to their full valence electron shells. They rarely form compounds. Examples include helium (He), used in balloons, and neon (Ne), famous for its application in lighting.",
+
+    "alkali-metal": "Alkali metals belong to Group 1 and are characterized by a single valence electron, which makes them highly reactive, especially with water. Reactivity increases down the group. Examples include lithium (Li), used in batteries, and sodium (Na), important for biological functions.",
+
+    "alkaline-earth": "Alkaline earth metals make up Group 2 and are reactive, though less so than alkali metals. They have two valence electrons and also exhibit increasing reactivity down the group. Magnesium (Mg), used in structural applications, and calcium (Ca), vital for bone health, are well-known members.",
+
+    "metalloid": "Metalloids straddle the line between metals and nonmetals, displaying properties of both. Found along the metal-nonmetal dividing line, they are used in semiconductors and other technologies. Silicon (Si), essential in electronics, and boron (B), used in glassmaking, are key examples.",
+
+    "halogen": "Halogens make up Group 17 and are highly reactive nonmetals with seven valence electrons, often forming salts with metals. Reactivity decreases down the group. Fluorine (F), used in dental health, and chlorine (Cl), a common disinfectant, are prominent halogens.",
+
+    "metal": "The metals are located in several groups but generally occupy the left and center of the periodic table. They are ductile, malleable, and good conductors of heat and electricity, often forming alloys. Examples include iron (Fe), used in construction, and aluminum (Al), valued for packaging and structural uses.",
+
+    "transition-metal": "Transition metals occupy the central block of the periodic table (Groups 3-12). Known for their multiple oxidation states and colorful compounds, they play important roles in industry and biological systems. Copper (Cu), essential in electrical wiring, and iron (Fe), used widely in construction, are notable examples."
+};
+
+
+
+    function showGroupInfo(group) {
+        const groupInfoContent = document.getElementById('group-info-content');
+        groupInfoContent.innerHTML = `<h2>${groupDescriptions[group]}</h2>`;
+        document.getElementById('group-info').style.display = 'block';
+    }
+
+    function closeGroupInfo() {
+        document.getElementById('group-info').style.display = 'none';
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const userMessage = input.value.trim();
+        if (!userMessage || !apiKey) {
+            alert("Please enter both a message and a valid API key.");
+            return;
+        }
+        addMessage(userMessage, true);
+        input.value = '';
+
+        addMessage("Bot: Thinking...", false);
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                body: JSON.stringify({
+                    model: "gpt-4",
+                    messages: [{ role: "system", content: "You are a helpful chemistry assistant." }, { role: "user", content: userMessage }]
+                })
+            });
+            if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+            const data = await response.json();
+            document.querySelector(".bot-message:last-child").remove();
+            addMessage(data.choices[0].message.content, false);
+        } catch (error) {
+            document.querySelector(".bot-message:last-child").remove();
+            addMessage(`Error: ${error.message}`, false);
+        }
+    }
+
+function addMessage(message, isUser = false) {
+    const messagesDiv = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+
+    if (!isUser) {
+        // Detect and handle specific formatting cases
+        if (message.includes('\n')) {
+            // Handle line breaks for lists or multiline responses
+            messageDiv.innerHTML = message
+                .split('\n')
+                .map(line => `<p>${line}</p>`)
+                .join('');
+        } else if (message.startsWith('<') || message.startsWith('|')) {
+            // Handle Markdown tables or raw HTML
+            if (message.startsWith('|')) {
+                // Convert Markdown table to HTML table
+                const tableHtml = markdownTableToHtml(message);
+                messageDiv.innerHTML = tableHtml;
+            } else {
+                // Render raw HTML content
+                messageDiv.innerHTML = message;
+            }
+        } else {
+            // Default plain text response
+            messageDiv.innerHTML = `<p>${message}</p>`;
+        }
+    } else {
+        // User message, plain text
+        messageDiv.textContent = message;
+    }
+
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+/**
+ * Converts a Markdown table into an HTML table.
+ * @param {string} markdown - The Markdown string containing a table.
+ * @returns {string} - An HTML table as a string.
+ */
+function markdownTableToHtml(markdown) {
+    const rows = markdown.trim().split('\n');
+    const tableRows = rows.map(row => {
+        const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell !== '');
+        const tag = row.includes('---') ? 'th' : 'td'; // Header row or data row
+        return `<tr>${cells.map(cell => `<${tag}>${cell}</${tag}>`).join('')}</tr>`;
+    });
+    return `<table style="width: 100%; border-collapse: collapse; border: 1px solid #ccc; text-align: left; margin-top: 10px;">${tableRows.join('')}</table>`;
+}
+
+
+
+
+    function downloadChat() {
+        const messages = document.getElementById('chat-messages').innerText;
+        const blob = new Blob([messages], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'chat-history.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    createPeriodicTable();
+</script>
+
+</body>
+</html>
